@@ -82,7 +82,7 @@ func TestStruct(test *testing.T) {
 			return
 		}
 		if !bytes.Equal(res, desired) {
-			test.Errorf("written data not matching")
+			test.Errorf("written data not matching expected got: %v, expected: %v", res, desired)
 		}
 	}
 	encodeCompareLE := func(s interface{}, desired []byte) { // compare with LittleEndian results

@@ -556,6 +556,32 @@ func TestStruct(test *testing.T) {
 		decodeCompareLE(exp, &out, &in)
 	}()
 
+	// slice of struct in a struct
+	func() {
+		type st2 struct {
+			I2 int16
+			B2 byte `binary:"int8"`
+		}
+		type st1 struct {
+			I1  int16
+			B1  byte  `binary:"int8"`
+			ST2 []st2 `binary:"[I1]struct"`
+		}
+
+		in := st1{
+			2,
+			1,
+			[]st2{
+				{2, 4},
+				{3, 5},
+			},
+		}
+		exp := []byte{0x02, 0x00, 0x01, 0x02, 0x00, 0x04, 0x03, 0x00, 0x05}
+		encodeCompareLE(in, exp)
+		out := st1{}
+		decodeCompareLE(exp, &out, &in)
+	}()
+
 	// some complex structure
 	func() {
 		type t struct {

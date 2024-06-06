@@ -82,7 +82,7 @@ func TestStruct(test *testing.T) {
 			return
 		}
 		if !bytes.Equal(res, desired) {
-			test.Errorf("written data not matching")
+			test.Errorf("written data not matching expected got: %v, expected: %v", res, desired)
 		}
 	}
 	encodeCompareLE := func(s interface{}, desired []byte) { // compare with LittleEndian results
@@ -610,7 +610,35 @@ func TestStruct(test *testing.T) {
 	// 	decodeCompareLE(exp, &out, &in)
 	// }()
 
-	// slice of struct in a struct
+	// slice of struct in a struct, with specified size for decoding
+	// func() {
+	// 	type st2 struct {
+	// 		I2 int16
+	// 		B2 byte `binary:"uint8"`
+	// 	}
+	// 	type st1 struct {
+	// 		I1  int16
+	// 		B1  byte `binary:"uint8"`
+	// 		ST2 []st2
+	// 	}
+
+	// 	in := st1{
+	// 		1,
+	// 		1,
+	// 		[]st2{
+	// 			{2, 4},
+	// 			{3, 5},
+	// 		},
+	// 	}
+	// 	exp := []byte{0x01, 0x00, 0x01, 0x02, 0x00, 0x04, 0x03, 0x00, 0x05}
+	// 	encodeCompareLE(in, exp)
+	// 	out := st1{
+	// 		ST2: make([]st2, 2),
+	// 	}
+	// 	decodeCompareLE(exp, &out, &in)
+	// }()
+
+	// slice of struct in a struct, no size specified
 	func() {
 		type st2 struct {
 			I2 int16
@@ -619,7 +647,7 @@ func TestStruct(test *testing.T) {
 		type st1 struct {
 			I1  int16
 			B1  byte  `binary:"int8"`
-			ST2 []st2 `binary:"[I1]st2"`
+			ST2 []st2 `binary:"[I1]struct"`
 		}
 
 		in := st1{
@@ -632,9 +660,7 @@ func TestStruct(test *testing.T) {
 		}
 		exp := []byte{0x02, 0x00, 0x01, 0x02, 0x00, 0x04, 0x03, 0x00, 0x05}
 		encodeCompareLE(in, exp)
-		out := st1{
-			ST2: make([]st2, 2),
-		}
+		out := st1{}
 		decodeCompareLE(exp, &out, &in)
 	}()
 
